@@ -41,8 +41,8 @@ plt.rcParams.update({
     'mathtext.fontset': 'stix',
     'axes.labelsize': 11,
     'axes.titlesize': 11,
-    'xtick.labelsize': 9,
-    'ytick.labelsize': 9,
+    'xtick.labelsize': 14,
+    'ytick.labelsize': 14,
     'legend.fontsize': 9,
     'axes.linewidth': 0.8,
     'xtick.major.width': 0.6,
@@ -76,10 +76,10 @@ LINESTYLES = {
 }
 
 LINEWIDTHS = {
-    'OLIDH_SD':   2.0,
-    'OLIDH_SD-I': 1.2,
-    'OLIDH_SD-D': 1.2,
-    'OLIDH_SD-H': 1.2,
+    'OLIDH_SD':   2.8,
+    'OLIDH_SD-I': 1.6,
+    'OLIDH_SD-D': 1.6,
+    'OLIDH_SD-H': 1.6,
 }
 
 LABELS = {
@@ -192,11 +192,15 @@ def load_ablation_data(csv_path):
 # ──────────────────────────────────────────────────────────────
 # 6. Single Figure Plotting
 # ──────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────
+# 6. Single Figure Plotting (Modified)
+# ──────────────────────────────────────────────────────────────
 def plot_single_ablation(df, dataset, stream, save_dir):
     """Plot one ablation figure and save as PDF + PNG."""
 
     display_name = DISPLAY_NAMES.get(dataset, dataset)
     title_str = f'{display_name}-{stream}'
+    # title_str = f'{display_name}-{stream}' # Title is unused in plot loop, but variable kept
 
     fig, ax = plt.subplots(figsize=(3.3, 2.5))
 
@@ -213,9 +217,9 @@ def plot_single_ablation(df, dataset, stream, save_dir):
             label=LABELS[variant],
         )
 
-    # ── Labels & title ──
-    ax.set_xlabel('# of Instances', fontsize=10)
-    ax.set_ylabel('CER', fontsize=10)
+    # ── Labels & title (MODIFIED: Added fontweight='bold') ──
+    ax.set_xlabel('# of Instances', fontsize=14, fontweight='bold')
+    ax.set_ylabel('CER', fontsize=14, fontweight='bold')
     ax.set_title(title_str, fontsize=10, pad=4)
 
     # ── Compute even ticks ──
@@ -236,28 +240,33 @@ def plot_single_ablation(df, dataset, stream, save_dir):
             FuncFormatter(lambda v, _: f'{v/1000:.0f}K' if v > 0 else '0')
         )
 
-    # ── Minor ticks (1 between each major → doubles grid density) ──
+    # ── Minor ticks ──
     ax.xaxis.set_minor_locator(AutoMinorLocator(2))
     ax.yaxis.set_minor_locator(AutoMinorLocator(2))
 
-    # ── Grid: major (darker) + minor (medium) ──
-    ax.grid(True, which='major', linestyle=':', alpha=0.8, linewidth=0.6, color='#888888')
-    ax.grid(True, which='minor', linestyle=':', alpha=0.5, linewidth=0.4, color='#AAAAAA')
+    # ── Grid ──
+    ax.grid(True, which='major', linestyle=':', alpha=0.8, linewidth=0.8, color="#2E2E2E")
+    ax.grid(True, which='minor', linestyle=':', alpha=0.5, linewidth=0.6, color="#4E4E4E")
 
-    # ── All four spines (black border) ──
+    # ── Spines ──
     for spine in ax.spines.values():
         spine.set_visible(True)
         spine.set_color('black')
         spine.set_linewidth(0.8)
 
-    # ── Ticks on all four sides ──
+    # ── Ticks ──
     ax.tick_params(which='both', top=True, right=True, direction='in')
+
+    # ── (NEW) Make Tick Labels Bold ──
+    # 必须在 set_xticks/yticks 和 formatter 之后设置，以确保应用到最终的标签上
+    plt.setp(ax.get_xticklabels(), fontweight='bold')
+    plt.setp(ax.get_yticklabels(), fontweight='bold')
 
     # ── Legend ──
     ax.legend(
         loc='best',
         frameon=False,
-        fontsize=7.5,
+        fontsize=14,
         handlelength=2.0,
         handletextpad=0.4,
         labelspacing=0.3,
@@ -274,7 +283,6 @@ def plot_single_ablation(df, dataset, stream, save_dir):
     plt.close(fig)
 
     return pdf_path, png_path
-
 
 # ──────────────────────────────────────────────────────────────
 # 7. Main
